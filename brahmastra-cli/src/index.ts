@@ -7,6 +7,7 @@ import { PlanningEngine } from './core/PlanningEngine';
 import { Orchestrator } from './core/Orchestrator';
 import { AgentRegistry } from './agents/AgentRegistry';
 import { PlanVisualizer } from './utils/PlanVisualizer';
+import { AgentPersonalities } from './agents/AgentPersonalities';
 
 const program = new Command();
 
@@ -56,16 +57,41 @@ program
 
 program
   .command('agents')
-  .description('List available agents and their capabilities')
-  .action(() => {
-    console.log(chalk.blue('🤖 Available Agents:\n'));
-    
-    const agents = AgentRegistry.getAllAgents();
-    agents.forEach(agent => {
-      console.log(chalk.green(`${agent.name}`));
-      console.log(chalk.gray(`  ${agent.description}`));
-      console.log(chalk.gray(`  Capabilities: ${agent.capabilities.join(', ')}\n`));
-    });
+  .description('Meet your AI warrior companions and their battle personalities')
+  .option('-p, --personalities', 'Show detailed agent personalities and battle profiles')
+  .action((options) => {
+    if (options.personalities) {
+      console.log(chalk.bold.red('\n╔══════════════════════════════════════════════════════════════════╗'));
+      console.log(chalk.bold.red('║') + chalk.bold.yellow('                 🎭 AGENT PERSONALITY PROFILES 🎭                  ') + chalk.bold.red('║'));
+      console.log(chalk.bold.red('╚══════════════════════════════════════════════════════════════════╝\n'));
+      
+      const agentTypes = ['FileAgent', 'APIAgent', 'TestAgent', 'DatabaseAgent', 'UIAgent'];
+      agentTypes.forEach((agentType, index) => {
+        AgentPersonalities.displayAgentProfile(agentType);
+        if (index < agentTypes.length - 1) {
+          console.log(chalk.gray('\n' + '─'.repeat(50) + '\n'));
+        }
+      });
+    } else {
+      console.log(chalk.bold.blue('\n🤖 BRAHMASTRA AGENT BATTALION:\n'));
+      console.log(chalk.blue('════════════════════════════════\n'));
+      
+      const agents = AgentRegistry.getAllAgents();
+      agents.forEach((agent, index) => {
+        const personality = AgentPersonalities.getPersonality(agent.name);
+        
+        console.log(chalk.bold.green(`${personality.name} (${agent.name})`));
+        console.log(chalk.white(`  📝 ${personality.description}`));
+        console.log(chalk.gray(`  🛠️  Capabilities: ${agent.capabilities.join(', ')}`));
+        console.log(chalk.yellow(`  💭 "${personality.motto}"`));
+        
+        if (index < agents.length - 1) {
+          console.log('');
+        }
+      });
+      
+      console.log(chalk.cyan('\n💡 Use --personalities flag to see detailed battle profiles!'));
+    }
   });
 
 program

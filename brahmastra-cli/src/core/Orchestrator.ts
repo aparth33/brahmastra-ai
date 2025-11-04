@@ -1,6 +1,8 @@
 import chalk from 'chalk';
 import { ExecutionPlan, Task } from '../types';
 import { AgentRegistry } from '../agents/AgentRegistry';
+import { BattleSimulator } from '../battle/BattleSimulator';
+import { AgentPersonalities } from '../agents/AgentPersonalities';
 
 export class Orchestrator {
   private currentPlan: ExecutionPlan | null = null;
@@ -14,11 +16,19 @@ export class Orchestrator {
     this.currentPlan = plan;
     this.executionInProgress = true;
 
-    console.log(chalk.blue(`\n🚀 Executing plan: ${plan.title}\n`));
+    console.log(chalk.bold.red('\n╔══════════════════════════════════════════════════════════════════╗'));
+    console.log(chalk.bold.red('║') + chalk.bold.yellow('                🏛️  BATTLE DEPLOYMENT INITIATED  🏛️                 ') + chalk.bold.red('║'));
+    console.log(chalk.bold.red('║') + chalk.bold.cyan(`                      ${plan.title.padEnd(30)}                      `) + chalk.bold.red('║'));
+    console.log(chalk.bold.red('╚══════════════════════════════════════════════════════════════════╝\n'));
 
     try {
       await this.executeTasksInOrder(plan.tasks);
-      console.log(chalk.green('\n🎉 Plan execution completed successfully!\n'));
+      
+      // Epic campaign victory
+      console.log(chalk.bold.green('\n🏆 CAMPAIGN VICTORY ACHIEVED! 🏆'));
+      console.log(chalk.green('═'.repeat(35)));
+      console.log(chalk.white('All agents have completed their missions with honor!'));
+      console.log(chalk.white('The BRAHMASTRA battle plan has been executed flawlessly!\n'));
     } catch (error) {
       console.log(chalk.red('\n💥 Plan execution failed:', error));
       throw error;
@@ -41,21 +51,32 @@ export class Orchestrator {
       // Find appropriate agent
       const agent = AgentRegistry.getAgent(task.agent) || AgentRegistry.getAgentForTask(task.description);
       
-      console.log(chalk.cyan(`\n[${tasks.indexOf(task) + 1}/${tasks.length}] ${task.description}`));
-      console.log(chalk.gray(`   Agent: ${agent.name}`));
+      console.log(chalk.bold.blue(`\n📋 MISSION ${tasks.indexOf(task) + 1}/${tasks.length}:`));
+      console.log(chalk.white(`   Objective: ${task.description}`));
+      console.log(chalk.gray(`   Assigned Agent: ${task.agent}`));
+      
+      // Get agent personality
+      const personality = AgentPersonalities.getPersonality(task.agent);
       
       // Update task status
       task.status = 'in_progress';
       
       try {
-        // Execute task
-        const success = await agent.execute(task);
+        // Execute task with epic battle simulation
+        console.log(chalk.yellow(`\n🎭 Deploying ${personality.name}...`));
+        const success = await BattleSimulator.simulateBattle(task, personality);
         
         if (success) {
           task.status = 'completed';
           completedTasks.add(task.id);
+          
+          // Victory celebration
+          console.log(chalk.green(`\n✅ MISSION ACCOMPLISHED!`));
+          console.log(chalk.white(`   ${personality.name} has secured the objective!`));
         } else {
           task.status = 'failed';
+          console.log(chalk.red(`\n❌ MISSION FAILED!`));
+          console.log(chalk.gray(`   ${personality.name} was unable to complete the objective.`));
           throw new Error(`Task failed: ${task.description}`);
         }
       } catch (error) {
