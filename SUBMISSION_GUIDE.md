@@ -1,4 +1,4 @@
-le# 🎯 Brahmastra AI
+# 🎯 Brahmastra AI
 
 **Brahmastra AI** is a planning layer inspired by Traycer that sits above coding agents to:
 - Transform vague requests into structured task plans
